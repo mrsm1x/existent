@@ -1,17 +1,32 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const generateLinkBtn = document.getElementById('generate-link-btn');
-  const generatedLinkDiv = document.getElementById('generated-link');
-  const linkText = document.getElementById('link-text');
-  const copyLinkBtn = document.getElementById('copy-link-btn');
+// Simulate a loading delay
+window.onload = function() {
+    setTimeout(showPage, 3000);
+};
 
-  generateLinkBtn.addEventListener('click', () => {
-      const fakeLink = `http://example.com/${Math.random().toString(36).substring(2, 15)}`;
-      linkText.textContent = fakeLink;
-      generatedLinkDiv.classList.remove('hidden');
-  });
+function showPage() {
+    document.getElementById("loader").style.display = "none";
+    document.getElementById("content").style.display = "flex";
+}
 
-  copyLinkBtn.addEventListener('click', () => {
-      navigator.clipboard.writeText(linkText.textContent).then(() => {
-          alert('Link copiat!');
-      }).catch(err => {
-          console.error('Eroare la copierea linkului:
+function generateRandomString(length) {
+    const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
+function generateLink() {
+    const link = "https://example.com/" + generateRandomString(10);
+    navigator.clipboard.writeText(link).then(() => {
+        alert("скопировано: " + link);
+    });
+}
+
+function generateCode() {
+    const code = generateRandomString(24);
+    navigator.clipboard.writeText(code).then(() => {
+        alert("скопировано: " + code);
+    });
+}
