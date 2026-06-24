@@ -591,7 +591,7 @@
         ctx.lineWidth = 1;
         let step = 40;
         
-        // Смещение сетки влево для имитации движения вперед
+      // Смещение сетки влево для имитации движения вперед
         let offset = 0;
         if (gameState === 'in_progress') {
             offset = (timeInRound * 20) % step;
@@ -601,812 +601,94 @@
             ctx.beginPath();
             ctx.moveTo(x, 0);
             ctx.lineTo(x, h - 40);
-            ctx        #multiplier {
-            font-size: 5rem;
-            font-weight: 800;
-            text-shadow: 0 0 20px rgba(255,255,255,0.2);
-            transition: color 0.2s;
+            ctx.stroke();
+        }
+        for (let y = 0; y < h - 40; y += step) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(w, y);
+            ctx.stroke();
         }
 
-        #game-status {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            margin-top: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        /* Control Panel */
-        .control-panel {
-            display: flex;
-            padding: 25px;
-            gap: 20px;
-            background: rgba(0, 0, 0, 0.1);
-            align-items: center;
-        }
-
-        .input-group {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .input-group label {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-wrapper input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 8px;
-            color: white;
-            font-size: 1.1rem;
-            font-weight: 600;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .input-wrapper input:focus {
-            border-color: var(--accent-purple);
-        }
-
-        .quick-buttons {
-            position: absolute;
-            right: 10px;
-            display: flex;
-            gap: 5px;
-        }
-
-        .quick-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .quick-btn:hover {
-            background: rgba(255,255,255,0.2);
-        }
-
-        .action-btn {
-            flex: 1;
-            height: 56px;
-            margin-top: 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s;
-            box-shadow: 0 0 15px rgba(0,0,0,0.2);
-        }
-
-        .btn-bet {
-            background: var(--accent-purple);
-            color: white;
-        }
-        .btn-bet:hover {
-            background: #693ce6;
-            box-shadow: 0 0 20px rgba(124, 77, 255, 0.4);
-        }
-
-        .btn-cashout {
-            background: var(--accent-green);
-            color: #000;
-        }
-        .btn-cashout:hover {
-            background: #00c862;
-            box-shadow: 0 0 20px rgba(0, 230, 118, 0.4);
-        }
-
-        .btn-disabled {
-            background: #2d3748 !important;
-            color: var(--text-muted) !important;
-            cursor: not-allowed !important;
-            box-shadow: none !important;
-        }
-
-        /* Message Box */
-        .message-box {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 230, 118, 0.2);
-            border: 1px solid var(--accent-green);
-            padding: 8px 20px;
-            border-radius: 20px;
-            color: #fff;
-            font-weight: 600;
-            display: none;
-            animation: fadeInUp 0.3s ease;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translate(-50%, 10px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
-        }
-    </style>
-</head>
-<body>
-
-<div class="game-wrapper">
-    <div class="top-bar">
-        <div class="history-container" id="history">
-            </div>
-        <div class="balance-box">
-            Баланс: <span id="balance-display">1000.00</span> $
-        </div>
-    </div>
-
-    <div class="main-area">
-        <canvas id="gameCanvas"></canvas>
-        <div class="display-overlay">
-            <div id="multiplier">1.00x</div>
-            <div id="game-status">Ожидание ставок</div>
-        </div>
-        <div class="message-box" id="win-message">Вы забрали: +0.00 $</div>
-    </div>
-
-    <div class="control-panel">
-        <div class="input-group">
-            <label for="bet-amount">Сумма ставки</label>
-            <div class="input-wrapper">
-                <input type="number" id="bet-amount" value="10" min="1" step="1">
-                <div class="quick-buttons">
-                    <button class="quick-btn" onclick="adjustBet('X2')">X2</button>
-                    <button class="quick-btn" onclick="adjustBet('MIN')">MIN</button>
-                    <button class="quick-btn" onclick="adjustBet('MAX')">MAX</button>
-                </div>
-            </div>
-        </div>
-        <button class="action-btn btn-bet" id="action-button">Поставить ставку</button>
-    </div>
-</div>
-
-<script>
-    // Игровые Константы и Переменные
-    let balance = 1000.00;
-    let currentBet = 0;
-    let hasBetThisRound = false;
-    let cashedOutThisRound = false;
-    
-    // Переменные состояний игры: 'waiting', 'in_progress', 'crashed'
-    let gameState = 'waiting'; 
-    let currentMultiplier = 1.00;
-    let crashPoint = 1.00;
-    let startTime = null;
-    let timeInRound = 0;
-    let countdownTimer = 5; // Время ожидания между раундами (сек)
-    let countdownStart = null;
-
-    // Canvas элементы
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    
-    // UI Элементы
-    const multiplierDisplay = document.getElementById('multiplier');
-    const statusDisplay = document.getElementById('game-status');
-    const actionButton = document.getElementById('action-button');
-    const balanceDisplay = document.getElementById('balance-display');
-    const betInput = document.getElementById('bet-amount');
-    const historyContainer = document.getElementById('history');
-    const winMessage = document.getElementById('win-message');
-
-    // Массив для частиц (эффекты дыма и взрыва)
-    let particles = [];
-
-    // Настройка размеров Canvas
-    function resizeCanvas() {
-        canvas.width = canvas.parentElement.clientWidth * window.devicePixelRatio;
-        canvas.height = canvas.parentElement.clientHeight * window.devicePixelRatio;
-        ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    // Генерация точки краша (алгоритм приближен к реальным Crash играм)
-    function generateCrashPoint() {
-        const e = Math.random();
-        // 3% шанс мгновенного краша на 1.00x
-        if (e < 0.03) return 1.00;
-        // Экспоненциальное распределение
-        const point = 99 / (100 - Math.random() * 99);
-        return Math.max(1.00, parseFloat(point.toFixed(2)));
+        // Нижняя линия оси X
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(0, h - 40);
+        ctx.lineTo(w, h - 40);
+        ctx.stroke();
     }
 
-    // Класс частицы для эффектов
-    class Particle {
-        constructor(x, y, color, speedX, speedY, size, life) {
-            this.x = x;
-            this.y = y;
-            this.color = color;
-            this.speedX = speedX;
-            this.speedY = speedY;
-            this.size = size;
-            this.maxLife = life;
-            this.life = life;
-        }
-        update() {
-            this.x += this.speedX;
-            this.y += this.speedY;
-            this.life--;
-        }
-        draw(c) {
-            c.save();
-            c.globalAlpha = this.life / this.maxLife;
-            c.fillStyle = this.color;
-            c.beginPath();
-            c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            c.fill();
-            c.restore();
-        }
-    }
-
-    // Функция обработки ввода ставок быстрых кнопок
-    function adjustBet(type) {
-        if (gameState === 'in_progress' && hasBetThisRound) return;
-        let currentVal = parseFloat(betInput.value) || 0;
-        if (type === 'X2') betInput.value = (currentVal * 2).toFixed(0);
-        if (type === 'MIN') betInput.value = 10;
-        if (type === 'MAX') betInput.value = Math.floor(balance);
-        validateBetInput();
-    }
-
-    function validateBetInput() {
-        let val = parseFloat(betInput.value);
-        if (val > balance) betInput.value = Math.floor(balance);
-        if (val < 1) betInput.value = 1;
-    }
-    betInput.addEventListener('input', validateBetInput);
-
-    // Логика клика по главной кнопке
-    actionButton.addEventListener('click', () => {
-        if (gameState === 'waiting') {
-            if (!hasBetThisRound) {
-                let bet = parseFloat(betInput.value);
-                if (bet > 0 && bet <= balance) {
-                    currentBet = bet;
-                    balance -= currentBet;
-                    hasBetThisRound = true;
-                    updateUI();
-                }
-            } else {
-                // Отмена ставки до начала раунда
-                balance += currentBet;
-                currentBet = 0;
-                hasBetThisRound = false;
-                updateUI();
-            }
-        } else if (gameState === 'in_progress' && hasBetThisRound && !cashedOutThisRound) {
-            // Кэшаут во время игры
-            let winAmount = currentBet * currentMultiplier;
-            balance += winAmount;
-            cashedOutThisRound = true;
-            
-            winMessage.innerText = `Вы забрали: +${winAmount.toFixed(2)} $`;
-            winMessage.style.display = 'block';
-            setTimeout(() => winMessage.style.opacity = '0', 2000);
-            setTimeout(() => { winMessage.style.display = 'none'; winMessage.style.opacity = '1'; }, 2300);
-
-            updateUI();
-        }
-    });
-
-    // Обновление интерфейса кнопок и текстов
-    function updateUI() {
-        balanceDisplay.innerText = balance.toFixed(2);
+    // Функция отрисовки графика ракеты и следа
+    function drawGraph(w, h) {
+        let startX = 60;
+        let startY = h - 40;
         
-        if (gameState === 'waiting') {
-            betInput.removeAttribute('disabled');
-            if (hasBetThisRound) {
-                actionButton.innerText = "Отменить ставку";
-                actionButton.className = "action-btn btn-cashout"; // оранжево/красный стиль отмены
-                actionButton.style.background = "#ff9100";
-            } else {
-                actionButton.innerText = "Поставить ставку";
-                actionButton.className = "action-btn btn-bet";
-                actionButton.style.background = "";
-            }
-        } else if (gameState === 'in_progress') {
-            betInput.setAttribute('disabled', 'true');
-            if (hasBetThisRound && !cashedOutThisRound) {
-                let currentWin = (currentBet * currentMultiplier).toFixed(2);
-                actionButton.innerText = `Забрать ${currentWin} $`;
-                actionButton.className = "action-btn btn-cashout";
-                actionButton.style.background = "";
-            } else if (cashedOutThisRound) {
-                actionButton.innerText = "Ставка принята (Выиграна)";
-                actionButton.className = "action-btn btn-disabled";
-            } else {
-                actionButton.innerText = "Игра в процессе...";
-                actionButton.className = "action-btn btn-disabled";
-            }
-        } else if (gameState === 'crashed') {
-            betInput.setAttribute('disabled', 'true');
-            actionButton.innerText = "КРАШ!";
-            actionButton.className = "action-btn btn-disabled";
-        }
-    }
+        // Вычисляем текущие координаты вершины графика на основе прогресса
+        let progressX = Math.min(1, timeInRound / 12); 
+        let progressY = Math.min(1, (currentMultiplier - 1) / 6);
 
-    // Добавление плашки в историю раундов
-    function addToHistory(value) {
-        const item = document.createElement('div');
-        item.className = `history-item ${value >= 2.00 ? 'history-green' : 'history-red'}`;
-        item.innerText = value.toFixed(2) + 'x';
-        historyContainer.prepend(item);
+        let targetX = startX + (w - startX - 80) * progressX;
+        let targetY = startY - (startY - 80) * progressY;
+
+        // Рисуем неоновую линию графика
+        ctx.save();
+        ctx.strokeStyle = gameState === 'crashed' ? 'var(--accent-red)' : 'var(--accent-purple)';
+        ctx.lineWidth = 4;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = ctx.strokeStyle;
         
-        if (historyContainer.children.length > 8) {
-            historyContainer.removeChild(historyContainer.lastChild);
-        }
-    }
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        // Плавная кривая Безье
+        ctx.quadraticCurveTo((startX + targetX)/1.4, startY, targetX, targetY);
+        ctx.stroke();
+        ctx.restore();
 
-    // Инициализация начала фазы ожидания нового раунда
-    function startWaitingPhase() {
-        gameState = 'waiting';
-        currentMultiplier = 1.00;
-        multiplierDisplay.style.color = 'var(--text-color)';
-        statusDisplay.innerText = "Ожидание ставок";
-        countdownStart = Date.now();
-        crashPoint = generateCrashPoint();
-        cashedOutThisRound = false;
-        hasBetThisRound = currentBet > 0; // если автоставка или была перенесена
-        if(!hasBetThisRound) currentBet = 0;
-        else {
-             // если ставка осталась с прошлого раза и баланса хватает
-             if(balance < currentBet) {
-                 currentBet = 0;
-                 hasBetThisRound = false;
-             } else {
-                 balance -= currentBet;
-             }
-        }
-        particles = [];
-        updateUI();
-    }
+        // Заполнение пространства под графиком красивым градиентом
+        ctx.save();
+        let gradient = ctx.createLinearGradient(0, targetY, 0, startY);
+        gradient.addColorStop(0, gameState === 'crashed' ? 'rgba(255, 23, 68, 0.2)' : 'rgba(124, 77, 255, 0.2)');
+        gradient.addColorStop(1, 'transparent');
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.quadraticCurveTo((startX + targetX)/1.4, startY, targetX, targetY);
+        ctx.lineTo(targetX, startY);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
 
-    // Старт самого полета графика
-    function startRound() {
-        gameState = 'in_progress';
-        startTime = Date.now();
-        statusDisplay.innerText = "Ракеты летит...";
-        updateUI();
-    }
-
-    // Триггер падения (Краш)
-    function triggerCrash() {
-        gameState = 'crashed';
-        multiplierDisplay.style.color = 'var(--accent-red)';
-        statusDisplay.innerText = `Взрыв на ${crashPoint.toFixed(2)}x`;
-        addToHistory(crashPoint);
-
-        // Создаем взрывные частицы
-        const w = canvas.width / window.devicePixelRatio;
-        const h = canvas.height / window.devicePixelRatio;
-        const targetX = 100 + (w - 200) * Math.min(1, timeInRound / 10);
-        const targetY = (h - 80) - (h - 150) * Math.min(1, (currentMultiplier - 1) / 5);
-
-        for (let i = 0; i < 60; i++) {
+        // Генерируем искры/дым из сопла ракеты во время полета
+        if (gameState === 'in_progress' && Math.random() > 0.3) {
             particles.push(new Particle(
                 targetX, 
                 targetY, 
-                Math.random() > 0.5 ? 'var(--accent-red)' : '#ffaa00',
-                (Math.random() - 0.5) * 8,
-                (Math.random() - 0.5) * 8,
-                Math.random() * 4 + 2,
-                Math.random() * 40 + 20
+                'rgba(140, 100, 255, 0.6)', 
+                -Math.random() * 2 - 1, 
+                Math.random() * 2 - 1, 
+                Math.random() * 3 + 1, 
+                30
             ));
         }
 
-        hasBetThisRound = false; 
-        currentBet = 0;
-
-        setTimeout(() => {
-            startWaitingPhase();
-        }, 3500); // пауза перед некст раундом
-    }
-
-    // Основной цикл отрисовки анимации и логики
-    function gameLoop() {
-        const w = canvas.width / window.devicePixelRatio;
-        const h = canvas.height / window.devicePixelRatio;
-        ctx.clearRect(0, 0, w, h);
-
-        // Отрисовка динамической сетки на фоне
-        drawGrid(w, h);
-
-        if (gameState === 'waiting') {
-            let elapsed = (Date.now() - countdownStart) / 1000;
-            let remaining = Math.max(0, countdownTimer - elapsed);
-            multiplierDisplay.innerText = `${remaining.toFixed(1)}s`;
-            
-            if (remaining <= 0) {
-                startRound();
-            }
-        }
-
+        // Рисуем светящуюся точку ("Ракету") на конце графика
         if (gameState === 'in_progress') {
-            timeInRound = (Date.now() - startTime) / 1000;
-            
-            // Магическая формула роста иксов (плавное ускорение)
-            currentMultiplier = Math.pow(Math.E, 0.065 * timeInRound);
-            
-            multiplierDisplay.innerText = `${currentMultiplier.toFixed(2)}x`;
-
-            if (hasBetThisRound && !cashedOutThisRound) {
-                updateUI(); // Обновляем выигрыш на кнопке в реальном времени
-            }
-
-            if (currentMultiplier >= crashPoint) {
-                currentMultiplier = crashPoint;
-                multiplierDisplay.innerText = `${currentMultiplier.toFixed(2)}x`;
-                triggerCrash();
-            }
-
-            // Отрисовка траектории полета
-            drawGraph(w, h);
-        }
-
-        if (gameState === 'crashed') {
-            drawGraph(w, h); // рисуем застывший график
-        }
-
-        // Обновление и отрисовка спецэффектов (частиц)
-        particles.forEach((p, idx) => {
-            p.update();
-            p.draw(ctx);
-            if (p.life <= 0) particles.splice(idx, 1);
-        });
-
-        requestAnimationFrame(gameLoop);
-    }
-
-    // Функция рисования сетки координат
-    function drawGrid(w, h) {
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-        ctx.lineWidth = 1;
-        let step = 40;
-        
-        // Смещение сетки влево для имитации движения вперед
-        let offset = 0;
-        if (gameState === 'in_progress') {
-            offset = (timeInRound * 20) % step;
-        }
-
-        for (let x = 0 - offset; x < w; x += step) {
+            ctx.save();
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = 'var(--accent-purple)';
             ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, h - 40);
-            ctx        h2 { font-weight: 300; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px; text-align: center; }
-
-        /* ТАЙМЕР */
-        .timer-view { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; }
-        
-        .display-container {
-            background: var(--bg-card);
-            border: var(--panel-border);
-            padding: 25px 35px;
-            border-radius: 24px;
-            margin-bottom: 20px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
-            text-align: center;
+            ctx.arc(targetX, targetY, 6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
         }
-
-        .time-display {
-            font-size: 3.5rem; font-weight: 200; font-variant-numeric: tabular-nums;
-            background: linear-gradient(to bottom, #fff 0%, #bec9f7 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        /* Общее время (Новое) */
-        .total-stats {
-            margin-bottom: 30px;
-            padding: 8px 20px;
-            background: rgba(118, 75, 162, 0.1);
-            border-radius: 12px;
-            border: 1px dashed rgba(118, 75, 162, 0.3);
-            font-size: 0.9rem;
-            color: #bec9f7;
-        }
-
-        .main-btn {
-            width: 150px; height: 150px; border-radius: 50%; border: none;
-            color: white; font-size: 1.2rem; font-weight: 600; text-transform: uppercase;
-            cursor: pointer; transition: var(--transition);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .btn-start { background: var(--primary-gradient); box-shadow: 0 0 20px rgba(102, 126, 234, 0.4); }
-        .btn-stop { background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%); box-shadow: 0 0 20px rgba(255, 71, 87, 0.4); }
-        .main-btn:active { transform: scale(0.92); }
-
-        /* ИСТОРИЯ */
-        .log-card {
-            background: var(--bg-card); border: var(--panel-border);
-            padding: 18px; border-radius: 16px; margin-bottom: 12px;
-        }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .card-duration { font-weight: 700; color: #bec9f7; font-size: 1.1rem; }
-        .card-details { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 15px; }
-
-        /* НАВИГАЦИЯ */
-        .nav-bar {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            height: 70px; background: rgba(10, 10, 30, 0.9);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 20px; border: var(--panel-border);
-            display: flex; z-index: 100;
-        }
-
-        .nav-item {
-            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: none; border: none; color: var(--text-muted); cursor: pointer;
-        }
-        .nav-item.active { color: #fff; }
-        .nav-item svg { width: 24px; height: 24px; fill: currentColor; margin-bottom: 4px; }
-        .nav-item span { font-size: 10px; text-transform: uppercase; }
-
-        /* МОДАЛКА */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center;
-        }
-        .modal.open { display: flex; }
-        .modal-content {
-            background: #0a0a1e; border: var(--panel-border);
-            width: 90%; max-width: 400px; padding: 25px; border-radius: 20px;
-        }
-        input {
-            width: 100%; padding: 12px; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-            color: #fff; margin-top: 5px; margin-bottom: 20px;
-        }
-        .modal-actions { display: flex; gap: 10px; }
-        .btn-mod { flex: 1; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; }
-        .btn-save { background: var(--primary-gradient); color: #fff; }
-        .btn-del { background: rgba(255, 71, 87, 0.1); color: var(--danger); border: 1px solid var(--danger); }
-        #toast {
-            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
-            background: var(--success); color: #000; padding: 8px 20px;
-            border-radius: 20px; font-weight: 600; opacity: 0; transition: 0.3s; z-index: 300;
-        }
-    </style>
-</head>
-<body>
-
-<div id="toast">Готово</div>
-
-<div id="app">
-    <div id="page-timer" class="page active">
-        <div class="timer-view">
-            <h2>СМЕНА</h2>
-            <div class="display-container">
-                <div id="display" class="time-display">00:00:00</div>
-            </div>
-            
-            <div class="total-stats">
-                Всего отработано: <span id="total-hours-display">00:00</span>
-            </div>
-
-            <button id="toggleBtn" class="main-btn btn-start">Старт</button>
-            <p id="status-text" style="margin-top: 15px; color: var(--text-muted);">Нажми, чтобы начать</p>
-        </div>
-    </div>
-
-    <div id="page-history" class="page">
-        <h2>ИСТОРИЯ</h2>
-        <div id="history-list"></div>
-    </div>
-</div>
-
-<nav class="nav-bar">
-    <button class="nav-item active" data-page="timer">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
-        <span>Таймер</span>
-    </button>
-    <button class="nav-item" data-page="history">
-        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
-        <span>История</span>
-    </button>
-</nav>
-
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <h3 style="margin-top:0">Правка записи</h3>
-        <label>Начало:</label>
-        <input type="datetime-local" id="editStart">
-        <label>Конец:</label>
-        <input type="datetime-local" id="editEnd">
-        <div class="modal-actions">
-            <button class="btn-mod btn-del" id="deleteBtn">Удалить</button>
-            <button class="btn-mod btn-save" id="saveBtn">ОК</button>
-        </div>
-        <button onclick="closeModal()" style="background:none; border:none; color:var(--text-muted); width:100%; margin-top:15px; cursor:pointer;">Отмена</button>
-    </div>
-</div>
-
-<script>
-    let logs = JSON.parse(localStorage.getItem('shift_logs_v3')) || [];
-    let activeStart = localStorage.getItem('shift_active_v3');
-    let timerInterval;
-    let editingIdx = null;
-
-    const display = document.getElementById('display');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const historyList = document.getElementById('history-list');
-    const totalDisplay = document.getElementById('total-hours-display');
-    const navItems = document.querySelectorAll('.nav-item');
-
-    // Функция для подсчета общего времени
-    function renderTotalHours() {
-        let totalMs = 0;
-        logs.forEach(log => {
-            totalMs += (new Date(log.end) - new Date(log.start));
-        });
-        
-        let s = Math.floor(totalMs / 1000);
-        let h = Math.floor(s / 3600);
-        let m = Math.floor((s % 3600) / 60);
-        
-        // Показываем ЧЧ:ММ
-        totalDisplay.innerText = `${h}ч ${m}м`;
     }
 
-    navItems.forEach(btn => {
-        btn.onclick = () => {
-            const targetPage = btn.getAttribute('data-page');
-            navItems.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-' + targetPage).classList.add('active');
-            if(targetPage === 'history') renderHistory();
-            if(targetPage === 'timer') renderTotalHours();
-        };
-    });
-
-    function format(ms) {
-        if(ms < 0) ms = 0;
-        let s = Math.floor(ms / 1000);
-        let h = Math.floor(s / 3600);
-        let m = Math.floor((s % 3600) / 60);
-        s %= 60;
-        return [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
-    }
-
-    function updateTick() {
-        const diff = Date.now() - new Date(activeStart).getTime();
-        display.innerText = format(diff);
-    }
-
-    function startUI() {
-        toggleBtn.innerText = 'Стоп';
-        toggleBtn.className = 'main-btn btn-stop';
-        document.getElementById('status-text').innerText = 'Работа идёт...';
-        document.getElementById('status-text').style.color = 'var(--success)';
-        clearInterval(timerInterval);
-        timerInterval = setInterval(updateTick, 1000);
-        updateTick();
-    }
-
-    function stopUI() {
-        toggleBtn.innerText = 'Старт';
-        toggleBtn.className = 'main-btn btn-start';
-        display.innerText = '00:00:00';
-        document.getElementById('status-text').innerText = 'Нажми, чтобы начать';
-        document.getElementById('status-text').style.color = 'var(--text-muted)';
-        clearInterval(timerInterval);
-        renderTotalHours(); // Обновляем общее время после завершения смены
-    }
-
-    toggleBtn.onclick = () => {
-        if (!activeStart) {
-            activeStart = new Date().toISOString();
-            localStorage.setItem('shift_active_v3', activeStart);
-            startUI();
-        } else {
-            const newLog = {
-                start: activeStart,
-                end: new Date().toISOString()
-            };
-            logs.unshift(newLog);
-            localStorage.setItem('shift_logs_v3', JSON.stringify(logs));
-            activeStart = null;
-            localStorage.removeItem('shift_active_v3');
-            stopUI();
-            toast("Сохранено");
-        }
-    };
-
-    function renderHistory() {
-        historyList.innerHTML = logs.length === 0 ? '<p style="text-align:center; color:var(--text-muted)">Нет записей</p>' : '';
-        logs.forEach((log, i) => {
-            const dStart = new Date(log.start);
-            const dEnd = new Date(log.end);
-            const card = document.createElement('div');
-            card.className = 'log-card';
-            card.onclick = () => openEdit(i);
-            card.innerHTML = `
-                <div class="card-header">
-                    <span style="font-size:0.9rem">${dStart.toLocaleDateString()}</span>
-                    <span class="card-duration">${format(dEnd - dStart)}</span>
-                </div>
-                <div class="card-details">
-                    <span>▼ ${dStart.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                    <span>▲ ${dEnd.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                </div>
-            `;
-            historyList.appendChild(card);
-        });
-    }
-
-    const modal = document.getElementById('editModal');
-    const inStart = document.getElementById('editStart');
-    const inEnd = document.getElementById('editEnd');
-
-    function openEdit(i) {
-        editingIdx = i;
-        const log = logs[i];
-        const toLocalISO = (iso) => {
-            const d = new Date(iso);
-            d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-            return d.toISOString().slice(0, 16);
-        };
-        inStart.value = toLocalISO(log.start);
-        inEnd.value = toLocalISO(log.end);
-        modal.classList.add('open');
-    }
-
-    function closeModal() { modal.classList.remove('open'); }
-
-    document.getElementById('saveBtn').onclick = () => {
-        logs[editingIdx].start = new Date(inStart.value).toISOString();
-        logs[editingIdx].end = new Date(inEnd.value).toISOString();
-        localStorage.setItem('shift_logs_v3', JSON.stringify(logs));
-        renderHistory();
-        renderTotalHours(); // Обновляем счетчик после правки
-        closeModal();
-        toast("Обновлено");
-    };
-
-    document.getElementById('deleteBtn').onclick = () => {
-        if(confirm("Удалить?")) {
-            logs.splice(editingIdx, 1);
-            localStorage.setItem('shift_logs_v3', JSON.stringify(logs));
-            renderHistory();
-            renderTotalHours(); // Обновляем счетчик после удаления
-            closeModal();
-            toast("Удалено");
-        }
-    };
-
-    function toast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.style.opacity = 1;
-        setTimeout(() => t.style.opacity = 0, 2000);
-    }
-
-    // Первичный расчет
-    renderTotalHours();
-    if(activeStart) startUI();
+    // Первичный запуск игры
+    startWaitingPhase();
+    gameLoop();
 </script>
+
 </body>
 </html>
